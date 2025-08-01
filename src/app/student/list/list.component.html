@@ -1,0 +1,185 @@
+<div class="min-h-screen bg-gray-200 p-6">
+  <h2 class="text-4xl font-bold text-center text-cyan-800 drop-shadow mb-6 tracking-wide">
+    Student List
+  </h2>
+
+  <!-- Top Controls -->
+  <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
+    <div class="flex items-center gap-2">
+      <label class="font-semibold">Import Format:</label>
+      <mat-form-field appearance="fill" class="w-32">
+        <mat-label>Format</mat-label>
+        <mat-select [(value)]="importFormat">
+          <mat-option value="CSV">CSV</mat-option>
+          <mat-option value="JSON">JSON</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <input type="file" hidden #fileInput (change)="onFileSelected($event)" />
+      <button mat-raised-button color="primary" (click)="fileInput.click()">
+        Import
+      </button>
+    </div>
+    <div *ngIf="messages.length > 0"
+      [ngClass]="messageType === 'success' ? 'bg-green-100 text-green-800 border border-green-300' : 'bg-red-100 text-red-800 border border-red-300'"
+      class="p-3 my-2 rounded w-full">
+      <ul class="list-disc pl-5">
+        <li *ngFor="let message of messages">{{ message }}</li>
+      </ul>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <mat-form-field appearance="fill" class="w-64">
+        <mat-label>Search by ID or Name</mat-label>
+        <input matInput [(ngModel)]="searchTerm" placeholder="Type here..." />
+      </mat-form-field>
+      <button mat-raised-button color="primary" (click)="searchStudents()">Search</button>
+      <button mat-raised-button color="primary" (click)="goToAdd()">
+        + Add Student
+      </button>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <label class="font-semibold">Export Format:</label>
+      <mat-form-field appearance="fill" class="w-32">
+        <mat-label>Format</mat-label>
+        <mat-select [(value)]="exportFormat">
+          <mat-option value="CSV">CSV</mat-option>
+          <mat-option value="JSON">JSON</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-raised-button color="primary" (click)="exportStudents()">Export All</button>
+      <!--button mat-raised-button color="primary" (click)="exportSelectedStudents()">Export Selected</button-->
+    </div>
+  </div>
+
+  <div class="text-sm mb-2">
+    <span class="font-semibold">Total Students: </span>{{ students.length }}
+    <span *ngIf="selectedCount > 0" class="text-green-700 text-sm" style="margin-left: 75%;">
+      ✅ {{ selectedCount }} student(s) selected
+    </span>
+
+  </div>
+
+  <!-- Table -->
+  <div class="overflow-auto rounded-lg shadow-lg bg-white">
+    <!--table mat-table [dataSource]="filteredStudents" class="w-full mat-elevation-z1"-->
+    <table mat-table [dataSource]="paginatedStudents" class="w-full mat-elevation-z1" ngClass="bg">
+
+      <!-- Checkbox Column -->
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef style="width: 40px; padding: 0; text-align: left;">
+          <mat-checkbox (change)="toggleAll($event)"></mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let student" style="width: 40px; padding: 0; text-align: left;">
+          <mat-checkbox [(ngModel)]="student.selected"></mat-checkbox>
+        </td>
+      </ng-container>
+
+
+      <!-- ID -->
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef>ID</th>
+        <td mat-cell *matCellDef="let student">{{ student.studentid }}</td>
+      </ng-container>
+
+      <!-- NRC -->
+      <ng-container matColumnDef="nrc">
+        <th mat-header-cell *matHeaderCellDef>NRC</th>
+        <td mat-cell *matCellDef="let student">{{ student.nrc }}</td>
+      </ng-container>
+
+      <!-- Name -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let student">{{ student.name }}</td>
+      </ng-container>
+
+      <!-- Fathername -->
+      <ng-container matColumnDef="fathername">
+        <th mat-header-cell *matHeaderCellDef>Father</th>
+        <td mat-cell *matCellDef="let student">{{ student.fathername }}</td>
+      </ng-container>
+
+      <!-- Email -->
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef>Email</th>
+        <td mat-cell *matCellDef="let student">{{ student.email }}</td>
+      </ng-container>
+
+      <!-- Phone -->
+      <ng-container matColumnDef="phone">
+        <th mat-header-cell *matHeaderCellDef>Phone</th>
+        <td mat-cell *matCellDef="let student">{{student.phone}}</td>
+      </ng-container>
+
+      <!-- State -->
+      <ng-container matColumnDef="state">
+        <th mat-header-cell *matHeaderCellDef>State</th>
+        <td mat-cell *matCellDef="let student">{{ student.state }}</td>
+      </ng-container>
+
+      <!-- Address -->
+      <ng-container matColumnDef="address">
+        <th mat-header-cell *matHeaderCellDef>Address</th>
+        <td mat-cell *matCellDef="let student">{{ student.address }}</td>
+      </ng-container>
+
+      <!-- Major -->
+      <ng-container matColumnDef="major">
+        <th mat-header-cell *matHeaderCellDef>Major</th>
+        <td mat-cell *matCellDef="let student">{{ student.major }}</td>
+      </ng-container>
+
+      <!-- DOB -->
+      <ng-container matColumnDef="dob">
+        <th mat-header-cell *matHeaderCellDef>DOB</th>
+        <td mat-cell *matCellDef="let student">{{ student.dob | date }}</td>
+      </ng-container>
+
+      <!-- Actions 
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let student">
+          <button mat-stroked-button color="accent" (click)="editStudent(student)">Update</button>
+          <button mat-raised-button color="warn" (click)="deleteStudent(student.id)">Delete</button>
+        </td>
+      </ng-container-->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="text-center">Actions</th>
+        <td mat-cell *matCellDef="let student" class="text-center px-1">
+          <div class="action-buttons">
+            <button mat-raised-button color="primary" (click)="editStudent(student)" class="action-btn">Update</button>
+            <button mat-raised-button color="warn" (click)="deleteStudent(student)" class="action-btn">
+              Delete
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Header and Row Declarations 
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr-->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"
+        class="bg-sky-500  text-sm font-semibold uppercase">
+      </tr>
+
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:bg-gray-100">
+      </tr>
+
+    </table>
+  </div>
+  <div class="flex justify-center items-center mt-4 gap-2 text-sm">
+    <button mat-button (click)="goToPage(1)" [disabled]="currentPage === 1">« First</button>
+    <button mat-button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">‹ Prev</button>
+
+    <ng-container *ngFor="let page of [].constructor(totalPages); let i = index">
+      <button mat-button [ngClass]="{'bg-cyan-700 text-white': currentPage === i + 1}" (click)="goToPage(i + 1)">
+        {{ i + 1 }}
+      </button>
+    </ng-container>
+
+    <button mat-button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">Next ›</button>
+    <button mat-button (click)="goToPage(totalPages)" [disabled]="currentPage === totalPages">Last »</button>
+  </div>
+
+</div>

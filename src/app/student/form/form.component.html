@@ -1,0 +1,144 @@
+<!-- Outer container -->
+<div class="min-h-screen bg-stone-100 py-10 px-4 flex flex-col items-center justify-start">
+
+  <!-- Header outside the form -->
+  <h2 class="text-4xl font-extrabold text-center mb-8 text-stone-300 drop-shadow-[2px_2px_0_black] tracking-wide"
+    style="font-family: 'Segoe UI', sans-serif;">
+    {{ isUpdateMode ? ' Student' : 'Add Student' }}
+  </h2>
+
+
+  <!-- Form container -->
+  <form [formGroup]="studentForm" (ngSubmit)="onSubmit()"
+    class="bg-stone-200 p-10 rounded-xl w-full max-w-4xl shadow-xl space-y-6">
+    <!-- Keep your inner form content as is (unchanged) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt 2">
+      <!-- Name -->
+      <mat-form-field appearance="fill" class="w-full max-w-md mx-auto">
+        <mat-label>Name</mat-label>
+        <mat-icon matPrefix>person</mat-icon>
+        <input matInput formControlName="name">
+        <mat-error *ngIf="studentForm.get('name')?.touched && studentForm.get('name')?.invalid">
+          Name is required
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Father Name -->
+      <mat-form-field appearance="fill" class="w-full max-w-md mx-auto">
+        <mat-label>Father Name</mat-label>
+        <mat-icon matPrefix>supervisor_account</mat-icon>
+        <input matInput formControlName="fathername">
+        <mat-error *ngIf="studentForm.get('fathername')?.touched && studentForm.get('fathername')?.invalid">
+          Required
+        </mat-error>
+      </mat-form-field>
+
+      <!-- NRC -->
+      <mat-form-field appearance="fill" class="w-full max-w-md mx-auto">
+        <mat-label>NRC</mat-label>
+        <mat-icon matPrefix>badge</mat-icon>
+        <input matInput formControlName="nrc" placeholder="e.g 1/ABC(N)123456">
+        <mat-error *ngIf="studentForm.get('nrc')?.touched && studentForm.get('nrc')?.invalid">
+          Format: 1/ABC(N)123456
+        </mat-error>
+      </mat-form-field>
+
+
+      <!-- Email -->
+      <mat-form-field appearance="fill" class="w-full max-w-md mx-auto">
+        <mat-label>Email</mat-label>
+        <mat-icon matPrefix>email</mat-icon>
+        <input matInput type="email" formControlName="email">
+        <mat-error *ngIf="studentForm.get('email')?.touched && studentForm.get('email')?.invalid">
+          Enter valid email
+        </mat-error>
+      </mat-form-field>
+
+      <!-- State -->
+      <mat-form-field appearance="fill" class="w-full max-w-md mx-auto">
+        <mat-label>State</mat-label>
+        <mat-icon matPrefix>location_on</mat-icon>
+        <mat-select formControlName="state">
+          <mat-option value="">-- Select State --</mat-option>
+          <mat-option *ngFor="let s of states" [value]="s">{{ s }}</mat-option>
+        </mat-select>
+        <mat-error *ngIf="studentForm.get('state')?.touched && studentForm.get('state')?.invalid">
+          State required
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Address -->
+      <mat-form-field appearance="fill" class="w-full max-w-md mx-auto">
+        <mat-label>Address</mat-label>
+        <mat-icon matPrefix>home</mat-icon>
+        <textarea matInput formControlName="address"></textarea>
+        <mat-error *ngIf="studentForm.get('address')?.touched && studentForm.get('address')?.invalid">
+          Address required
+        </mat-error>
+      </mat-form-field>
+
+      <!-- DOB -->
+      <mat-form-field appearance="fill" class="w-full max-w-md mx-auto">
+        <mat-label>Date of Birth</mat-label>
+        <mat-icon matPrefix>calendar_today</mat-icon>
+        <input matInput [matDatepicker]="picker" formControlName="dob">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+
+        <mat-error *ngIf="studentForm.get('dob')?.hasError('required')">
+          Date of Birth is required
+        </mat-error>
+        <mat-error *ngIf="studentForm.get('dob')?.hasError('ageInvalid')">
+          Student must be at least 18 years old
+        </mat-error>
+      </mat-form-field>
+
+
+
+      <!-- Phone -->
+      <mat-form-field appearance="fill" class="w-full max-w-md mx-auto">
+        <mat-label>Phone</mat-label>
+        <mat-icon matPrefix>phone</mat-icon>
+        <input matInput formControlName="phone" maxlength="13" (keydown)="allowOnlyPhoneDigits($event)"
+          (input)="enforcePhonePrefix()" autocomplete="off">
+        <mat-error *ngIf="studentForm.get('phone')?.touched && studentForm.get('phone')?.invalid">
+          Phone must start with +959 and have 7–9 digits
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Major -->
+      <mat-form-field appearance="fill" class="w-full max-w-md mx-auto">
+        <mat-label>Major</mat-label>
+        <mat-icon matPrefix>menu_book</mat-icon>
+        <mat-select formControlName="major">
+          <mat-option value="Computer Science">Computer Science</mat-option>
+          <mat-option value="Information Tech">Information Tech</mat-option>
+          <mat-option value="Industry Chemistry">Industry Chemistry</mat-option>
+          <mat-option value="Nuclear Physics">Nuclear Physics</mat-option>
+        </mat-select>
+        <mat-error *ngIf="studentForm.get('major')?.touched && studentForm.get('major')?.invalid">
+          Major required
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex justify-center gap-4 mt-6">
+      <!-- Create Button -->
+      <button type="submit"
+        class="px-4 py-2 rounded-full bg-stone-950 text-white hover:bg-green-600 transition duration-200 ease-in-out font-semibold flex items-center shadow-md">
+        <mat-icon class="mr-2">{{ isUpdateMode ? 'edit' : 'add_circle' }}</mat-icon>
+        {{ isUpdateMode ? 'Update' : 'Create' }}
+      </button>
+
+      <!-- Go Back Button -->
+      <button type="button" (click)="goBack()"
+        class="px-4 py-2 rounded-full bg-stone-950 text-white hover:bg-green-600 transition duration-200 ease-in-out font-semibold flex items-center shadow-md">
+        <mat-icon class="mr-2">arrow_back</mat-icon> Go Back List
+      </button>
+    </div>
+
+
+
+  </form>
+</div>

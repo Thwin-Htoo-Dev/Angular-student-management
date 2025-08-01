@@ -1,0 +1,8 @@
+.mat-form-field-appearance-standard .mat-form-field-outline {
+    display: none !important;
+}
+
+.mat-form-field {
+    background: transparent !important;
+    border-radius: 0 !important;
+}
